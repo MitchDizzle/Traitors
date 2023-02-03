@@ -31,7 +31,6 @@ jQuery(function($){
             IO.socket.on('hostCheckAnswer', IO.hostCheckAnswer);
             IO.socket.on('gameOver', IO.gameOver);
             IO.socket.on('error', IO.error );
-            IO.socket.on('showLeader',IO.showLeader);
         },
 
         /**
@@ -39,25 +38,8 @@ jQuery(function($){
          */
         onConnected : function() {
             // Cache a copy of the client's socket.IO session ID on the App
-            App.mySocketId = IO.socket.socket.sessionid;
-            // console.log(data.message);
-        },
-
-        //function for showing leader
-        showLeader : function(data){
-          App.$gameArea.html(App.$leaderGame);
-            var table='<div id="tablearea"><table id="leadertable"><tr><th>Player Name</th><th>Total Win</th></tr>';
-            console.log("Showing Leader");
-            var i=Object.keys(data).length;
-            for(var j=0;j<i;j++)
-            {
-                //console.log(i);
-              table+='<tr><td>'+data[j].name+'</td><td>'+data[j].win+'</td></tr>';
-            }
-            table+='</table></div>';
-            table+="<div id='mid'><button id='back' class='btn'>BACK</button></div>"
-            console.log(table);
-            App.$gameArea.append(table);
+            App.mySocketId = IO.socket.sessionid;
+            console.log(App.mySocketId);
         },
 
         /**
@@ -79,6 +61,7 @@ jQuery(function($){
             //
             // So on the 'host' browser window, the App.Host.updateWiatingScreen function is called.
             // And on the player's browser, App.Player.updateWaitingScreen is called.
+            console.log("Player Joined room");
             App[App.myRole].updateWaitingScreen(data);
         },
 
@@ -185,7 +168,6 @@ jQuery(function($){
             App.$templateNewGame = $('#create-game-template').html();
             App.$templateJoinGame = $('#join-game-template').html();
             App.$hostGame = $('#host-game-template').html();
-            App.$leaderGame = $('#leaderboard-template').html();
         },
 
         /**
@@ -200,7 +182,6 @@ jQuery(function($){
             App.$doc.on('click', '#btnStart',App.Player.onPlayerStartClick);
             App.$doc.on('click', '.btnAnswer',App.Player.onPlayerAnswerClick);
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
-            App.$doc.on('click', '#leaderboard', App.onLeaderboardClick);
             App.$doc.on('click', '#back', App.onBackClick);
         },
 
@@ -217,10 +198,6 @@ jQuery(function($){
             App.doTextFit('.title');
         },
 
-        onLeaderboardClick : function(){
-          console.log("clicked button");
-          IO.socket.emit('findLeader');
-        },
 
         onBackClick : function()
         {
@@ -483,20 +460,20 @@ jQuery(function($){
              * and clicked Start.
              */
             onPlayerStartClick: function() {
-                // console.log('Player clicked "Start"');
+                console.log('Player clicked "Start"');
 
                 // collect data to send to the server
                 var data = {
                     gameId : +($('#inputGameId').val()),
                     playerName : $('#inputPlayerName').val() || 'anon'
                 };
-
+                App.myRole = 'Player';
+                App.Player.myName = data.playerName;
                 // Send the gameId and playerName to the server
                 IO.socket.emit('playerJoinGame', data);
 
                 // Set the appropriate properties for the current player.
-                App.myRole = 'Player';
-                App.Player.myName = data.playerName;
+                
             },
 
             /**

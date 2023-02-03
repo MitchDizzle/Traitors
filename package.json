@@ -1,11 +1,8 @@
 {
-  "name": "werewolf",
+  "name": "Traitors",
   "version": "1.0.0",
   "description": "A locally hosted werewolf party game that keeps tracks of players, roles, kills, and other actions. ",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MitchDizzle/Werewolf.git"
@@ -20,9 +17,21 @@
   },
   "homepage": "https://github.com/MitchDizzle/Werewolf#readme",
   "dependencies": {
-    "express": "^4.18.2",
-    "morgan": "^1.10.0",
-    "socket.io": "^4.5.4",
-    "sqlite3": "^5.1.4"
+    "http-single-serve": "^1.0.0",
+    "websocket-game-lobby": "^4.1.1"
+  },
+  "devDependencies": {
+    "@neogeek/common-react-hooks": "3.2.0",
+    "@neogeek/custom-webpack-cli": "^2.17.0",
+    "concurrently": "7.6.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "styled-components": "5.3.6",
+    "websocket-game-lobby-client-hooks": "1.5.5"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "concurrently \"npm:start\" \"custom-webpack-dev-server-cli\"",
+    "build": "custom-webpack-cli"
   }
 }

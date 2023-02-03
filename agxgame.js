@@ -34,11 +34,14 @@ exports.initGame = function(sio, socket){
  * The 'START' button was clicked and 'hostCreateNewGame' event occurred.
  */
 function hostCreateNewGame() {
+    console.log(this);
     // Create a unique Socket.IO Room
     var thisGameId = ( Math.random() * 1000 ) | 0;
 
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id});
+    
+    console.log('New room created: ' + thisGameId);
 
     // Join the Room and wait for the players
     this.join(thisGameId.toString());
@@ -64,7 +67,7 @@ function hostPrepareGame(gameId) {
  */
 function hostStartGame(gameId) {
     console.log('Game Started.');
-    sendWord(0,gameId);
+    sendWord(0, gameId);
 };
 
 /**

@@ -18,6 +18,7 @@
 </head>
 
 <body>
+    <div id="root"></div>
 
     <div id="gameArea">
         <!-- This is where the templates defined below will be used -->
@@ -54,7 +55,7 @@
             <div id="spanNewGameCode" class="gameId">Error!</div>
 
             <div id="playersWaiting"></div>
-            <button id="btnHome" class="btn home">BACK</button>
+            <button id="back" class="btn">BACK</button>
         </div>
     </script>
 
@@ -114,10 +115,10 @@
 
     <!-- If Socket.IO is used with Express, then the /socket.io/ path will
         serve the proper Socket.IO javascript files used by the browser -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!--<script src="/socket.io/socket.io.js"></script>-->
 
     <!-- app.js is where all the client-side Anagrammatix game logic -->
-    <script src="app.js"></script>
+    <!--<script src="app.js"></script>-->
 
 </body>
 </html>
