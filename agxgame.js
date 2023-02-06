@@ -29,14 +29,23 @@ exports.initGame = function(sio, socket){
    *       HOST FUNCTIONS        *
    *                             *
    ******************************* */
-
+function makeid(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+}
 /**
  * The 'START' button was clicked and 'hostCreateNewGame' event occurred.
  */
 function hostCreateNewGame() {
-    console.log(this);
     // Create a unique Socket.IO Room
-    var thisGameId = ( Math.random() * 1000 ) | 0;
+    var thisGameId = makeid(4);
 
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     this.emit('newGameCreated', {gameId: thisGameId, mySocketId: this.id});
@@ -44,7 +53,8 @@ function hostCreateNewGame() {
     console.log('New room created: ' + thisGameId);
 
     // Join the Room and wait for the players
-    this.join(thisGameId.toString());
+    this.join(thisGameId);
+	console.log(gameSocket.rooms);
 };
 
 /*
@@ -98,18 +108,20 @@ function hostNextRound(data) {
 function playerJoinGame(data) {
     console.log('Player ' + data.playerName + ' attempting to join game: ' + data.gameId );
 
+    var tempGameId = data.gameId.toUpperCase();
+    data.gameId = tempGameId;
     // A reference to the player's Socket.IO socket object
     var sock = this;
 	console.log(gameSocket.rooms);
     // Look up the room ID in the Socket.IO manager object.
     // If the room exists...
-	console.log(gameSocket.rooms.has(data.gameId.toString()));
-    if( gameSocket.rooms.has(data.gameId.toString()) ){
+	console.log(gameSocket.rooms.has(data.gameId));
+    if( gameSocket.rooms.has(data.gameId) ){
         // attach the socket id to the data object.
         data.mySocketId = sock.id;
 
         // Join the room
-        sock.join(data.gameId.toString());
+        sock.join(data.gameId);
 
         console.log('Player ' + data.playerName + ' joining game: ' + data.gameId );
 
@@ -127,6 +139,7 @@ function playerJoinGame(data) {
  * @param data gameId
  */
 function playerAnswer(data) {
+    console.log(data);
     console.log('Player ID: ' + data.playerId + ' answered a question with: ' + data.answer);
 
     // The player's answer is attached to the data object.  \

@@ -1,27 +1,30 @@
-const http = require('http-single-serve');
+// Import the Express module
+var express = require('express');
 
-const {
-    WebSocketGameLobbyServer,
-    EphemeralDataStore 
-} = require('websocket-game-lobby');
- 
-const datastore = new EphemeralDataStore();
+// Import the 'path' module (packaged with Node.js)
+var path = require('path');
 
-datastore.addEventListener('createGame', async (game, datastore) => {
-    game.custom.createdDate = Date.now();
-    return game;
+// Create a new instance of Express
+var logger = require('morgan');
+var app = express();
+
+app.use(logger('dev'));
+app.use(express.static(path.join(__dirname,'src')));
+
+// Import the fs
+var fs = require('fs');
+// Import the Anagrammatix game file
+var agx = require('./agxgame');
+const { env } = require('process');
+
+var server = app.listen(process.env.PORT || 8080);
+var io = require('socket.io')(server);
+
+// Reduce the logging output of Socket.IO
+//io.set('log level',1);
+
+// Listen for Socket.IO Connections. Once connected, start the game logic.
+io.sockets.on('connection', function (socket) {
+    //console.log('client connected');
+    agx.initGame(io, socket);
 });
-
-const gameLobby = new WebSocketGameLobbyServer({
-    server: http({
-        port: process.env.PORT || 8080,
-        root: './src/'
-    }),
-    datastore
-});
-
-const createHandler = async ({ gameId, playerId }, datastore) => {
-    console.log("Created Lobby: "+ gameId + " - " + playerId);
-};
-
-gameLobby.addEventListener('create', createHandler);

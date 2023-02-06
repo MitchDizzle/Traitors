@@ -1,7 +1,7 @@
 ;
 jQuery(function($){
     'use strict';
-
+    
     /**
      * All the code relevant to Socket.IO is collected in the IO namespace.
      *
@@ -38,8 +38,8 @@ jQuery(function($){
          */
         onConnected : function() {
             // Cache a copy of the client's socket.IO session ID on the App
-            App.mySocketId = IO.socket.sessionid;
-            console.log(App.mySocketId);
+            App.mySocketId = IO.socket.id;
+            
         },
 
         /**
@@ -120,7 +120,7 @@ jQuery(function($){
          * of the Socket.IO Room used for the players and host to communicate
          *
          */
-        gameId: 0,
+        gameId: '',
 
         /**
          * This is used to differentiate between 'Host' and 'Player' browsers.
@@ -154,6 +154,7 @@ jQuery(function($){
 
             // Initialize the fastclick library
             FastClick.attach(document.body);
+
         },
 
         /**
@@ -196,6 +197,10 @@ jQuery(function($){
         showInitScreen: function() {
             App.$gameArea.html(App.$templateIntroScreen);
             App.doTextFit('.title');
+
+            App.Player.myName = Cookies.get('username');
+            console.log(App.Player.myName);
+            $('#inputPlayerName').val(App.Player.myName);
         },
 
 
@@ -241,7 +246,7 @@ jQuery(function($){
 
             /**
              * The Host screen is displayed for the first time.
-             * @param data{{ gameId: int, mySocketId: * }}
+             * @param data{{ gameId: string, mySocketId: * }}
              */
             gameInit: function (data) {
                 App.gameId = data.gameId;
@@ -250,7 +255,7 @@ jQuery(function($){
                 App.Host.numPlayersInRoom = 0;
 
                 App.Host.displayNewGameScreen();
-                // console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId);
+                console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId);
             },
 
             /**
@@ -453,6 +458,7 @@ jQuery(function($){
 
                 // Display the Join Game HTML on the player's screen.
                 App.$gameArea.html(App.$templateJoinGame);
+                $('#inputPlayerName').val(App.Player.myName);
             },
 
             /**
@@ -464,11 +470,18 @@ jQuery(function($){
 
                 // collect data to send to the server
                 var data = {
-                    gameId : +($('#inputGameId').val()),
-                    playerName : $('#inputPlayerName').val() || 'anon'
+                    gameId : $('#inputGameId').val().toUpperCase(),
+                    playerName : $('#inputPlayerName').val() || 'anon',
+                    playerId: App.mySocketId,
                 };
                 App.myRole = 'Player';
                 App.Player.myName = data.playerName;
+
+                //Store the players name as a cookie.
+                Cookies.set('username', data.playerName);
+
+
+
                 // Send the gameId and playerName to the server
                 IO.socket.emit('playerJoinGame', data);
 
@@ -486,13 +499,15 @@ jQuery(function($){
 
                 // Send the player info and tapped word to the server so
                 // the host can check the answer.
+                console.log(App.mySocketId);
                 var data = {
                     gameId: App.gameId,
                     playerId: App.mySocketId,
+                    zplayerId: App.mySocketId,
                     answer: answer,
                     round: App.currentRound
                 }
-                IO.socket.emit('playerAnswer',data);
+                IO.socket.emit('playerAnswer', data);
             },
 
             /**
@@ -514,7 +529,7 @@ jQuery(function($){
              * @param data
              */
             updateWaitingScreen : function(data) {
-                if(IO.socket.socket.sessionid === data.mySocketId){
+                if(IO.socket.id === data.mySocketId){
                     App.myRole = 'Player';
                     App.gameId = data.gameId;
 
@@ -635,7 +650,6 @@ jQuery(function($){
                 }
             );
         }
-
     };
 
     IO.init();
